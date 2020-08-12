@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Typography, Button, AppBar, Toolbar } from "@material-ui/core";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { Typography, Button, AppBar, Toolbar, IconButton } from "@material-ui/core";
+import MenuIcon from '@material-ui/icons/Menu';
 import { Rnd } from 'react-rnd'
+import uid from 'uid';
 
-const style = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "solid 1px #ddd",
-    background: "#f0f0f0"
-};
 
 interface Status {
     Field: string
@@ -16,61 +11,190 @@ interface Status {
     Size: { "width": number, "height": number }
 }
 
+interface Component {
+    ID: string
+    Field: string
+    Position: { "x": number, "y": number }
+    Size: { "width": number, "height": number }
+}
+
+interface AppBarProps {
+    update: (cmp: Component) => void
+    component: Component
+}
+
+const RndAppBar: React.FC<AppBarProps> = (props) => {
+    const { update, component } = props
+
+    const [size, setSize] = useState({ width: 500, height: 60 })
+    return (
+        <Rnd
+            default={{
+                x: 0,
+                y: 0,
+                width: component.Size.width,
+                height: component.Size.height
+            }}
+            position={{ x: component.Position.x, y: component.Position.y }}
+            size={{ width: component.Size.width, height: component.Size.height }}
+            bounds={"parent"}
+            onDragStop={(e, data) => {
+                console.log(data)
+                //const nextStatus = { ...component, Field: "button", Position: { x: data.x, y: data.y } }
+                update({ ...component, Position: { x: data.x, y: data.y } })
+                //setIndex(index + 1)
+            }}
+            onResize={(e, dir, refToElement, delta, position) => {
+                setSize({ width: component.Size.width + delta.width, height: component.Size.height + delta.height })
+            }}
+            onResizeStop={(e, dir, refToElement, delta, position) => {
+                const tgtStatus = component
+                //const nextStatus: Component = { Field: "button", Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } }
+                update({ ...component, Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } })
+                //setIndex(index + 1)
+            }}
+        >
+            <AppBar style={{ height: size.height, width: size.width }}>
+                <Toolbar>
+                    <IconButton edge="start" color="inherit" aria-label="menu" style={{ backgroundColor: "green" }}>
+                        <MenuIcon />
+                    </IconButton>
+
+                    <Typography variant="h6" style={{ backgroundColor: "red" }}>
+                        News
+                </Typography>
+                </Toolbar>
+            </AppBar>
+        </Rnd>
+    )
+}
+
+interface ButtonProps {
+    update: (cmp: Component) => void
+    component: Component
+}
+
+const RndButton: React.FC<ButtonProps> = (props) => {
+    const { update, component } = props
+
+    const [size, setSize] = useState({ width: 500, height: 60 })
+    // const [index, setIndex] = useState<number>(0)
+    //const [dolist, setDolist] = useState<Status[]>([{ Field: "button", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }])
+    return (
+        <Rnd
+            default={{
+                x: 0,
+                y: 0,
+                width: component.Size.width,
+                height: component.Size.height
+            }}
+            position={{ x: component.Position.x, y: component.Position.y }}
+            size={{ width: component.Size.width, height: component.Size.height }}
+            bounds={"parent"}
+            onDragStop={(e, data) => {
+                console.log(data)
+                //const nextStatus = { ...component, Field: "button", Position: { x: data.x, y: data.y } }
+                update({ ...component, Position: { x: data.x, y: data.y } })
+                //setIndex(index + 1)
+            }}
+            onResize={(e, dir, refToElement, delta, position) => {
+                setSize({ width: component.Size.width + delta.width, height: component.Size.height + delta.height })
+            }}
+            onResizeStop={(e, dir, refToElement, delta, position) => {
+                const tgtStatus = component
+                //const nextStatus: Component = { Field: "button", Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } }
+                update({ ...component, Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } })
+                //setIndex(index + 1)
+            }}
+        >
+            <Button variant={"contained"} style={{ height: size.height, width: size.width }}>{"test"}</Button>
+        </Rnd>
+    )
+}
+
 const Test: React.FC = () => {
-    const [size, setSize] = useState({ width: 100, height: 100 })
-    const [index, setIndex] = useState<number>(0)
-    const [stlist, setStlist] = useState<Status[]>([{ Field: "header", Position: { "x": 0, "y": 0 }, Size: { "height": 100, "width": 100 } }])
+    //const [size, setSize] = useState({ width: 500, height: 60 })
+    const [doIndex, setDoIndex] = useState<number>(-1)
+    const [dolist, setDolist] = useState<Component[]>([])
+    const [components, setComponents] = useState<Component[]>([])
+
+    useEffect(() => {
+        console.log("dolist2", dolist, doIndex, components)
+    }, [dolist, doIndex])
+
+    const setButton = () => {
+        const component = { ID: uid(), Field: "button", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }
+        setComponents([...components, component])
+        setDoIndex(dolist.length)
+        setDolist([...dolist.slice(0, doIndex + 1), component])
+    }
+    const setAppBar = () => {
+        const component = { ID: uid(), Field: "appbar", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }
+        setComponents([...components, component])
+        setDoIndex(dolist.length)
+        setDolist([...dolist.slice(0, doIndex + 1), component])
+    }
+
+    const update = (cmp: Component) => {
+        setDolist([...dolist.splice(0, doIndex + 1), cmp])
+        setDoIndex(doIndex + 1)
+        const newCmps = [...components]
+        components.forEach((precmp, index) => {
+            if (precmp.ID === cmp.ID) {
+                newCmps.splice(index, 1, cmp) // IDが等しいもののみ置換
+            }
+        })
+        setComponents(newCmps)
+    }
 
     const undo = () => {
-        if (index !== 0) {
-            setIndex(index - 1)
-            setSize({ width: stlist[index - 1].Size.width, height: stlist[index - 1].Size.height })
-            //setHeight(whlist[index - 1].height);
-            //setWidth(whlist[index - 1].width);
+        if (doIndex !== -1) {
+            const tgtCmp = dolist[doIndex]
+            const lastCmp = dolist.slice(0, doIndex).reverse().find((cmp) => cmp.ID === tgtCmp.ID) // 一つ前の同じIDのCmpをもつDolistのindex
+            const index = components.findIndex((cmp) => cmp.ID === tgtCmp.ID) // 同じIDのCmpをもつComponentsのindex
+            if (lastCmp === undefined) {
+                // 該当しなかったら削除
+                const cpcmps = [...components]
+                cpcmps.splice(index, 1)
+                setComponents(cpcmps)
+            } else {
+                // 該当すれば一個前のステータスに置換して戻す
+                const cpcmps = [...components]
+                cpcmps.splice(index, 1, lastCmp)
+                setComponents(cpcmps)
+            }
+            setDoIndex(doIndex - 1)
         }
     }
     const redo = () => {
-        if (index !== stlist.length - 1) {
-            setIndex(index + 1)
-            setSize({ width: stlist[index + 1].Size.width, height: stlist[index + 1].Size.height })
-            //setHeight(whlist[index + 1].height);
-            //setWidth(whlist[index + 1].width);
+        if (doIndex !== dolist.length - 1) {
+            const tgtCmp = dolist[doIndex + 1]
+            const index = components.findIndex((cmp) => cmp.ID === tgtCmp.ID) // 同じIDのCmpをもつComponentsのindex
+            if (index === -1) {
+                setComponents([...components, tgtCmp])
+            } else {
+                const cpcmps = [...components]
+                cpcmps.splice(index, 1, tgtCmp)
+                setComponents(cpcmps)
+            }
+
+            setDoIndex(doIndex + 1)
         }
     }
     return (
         <div>
+            <Button variant={"contained"} onClick={() => setButton()}>Button</Button>
+            <Button variant={"contained"} onClick={() => setAppBar()}>AppBar</Button>
             <div style={{ height: 500, width: 800, backgroundColor: "blue", borderWidth: 1, borderColor: "black", borderStyle: "solid" }}>
-                <Rnd
-                    default={{
-                        x: 0,
-                        y: 0,
-                        width: stlist[0].Size.width,
-                        height: stlist[0].Size.height
-                    }}
-                    position={{ x: stlist[index].Position.x, y: stlist[index].Position.y }}
-                    size={{ width: stlist[index].Size.width, height: stlist[index].Size.height }}
-                    bounds={"parent"}
-                    onDragStop={(e, data) => {
-                        console.log(data)
-                        const nextStatus = { ...stlist[index], Field: "header", Position: { x: data.x, y: data.y } }
-                        setStlist([...stlist.splice(0, index + 1), nextStatus])
-                        setIndex(index + 1)
-                    }}
-                    onResize={(e, dir, refToElement, delta, position) => {
-                        setSize({ width: stlist[index].Size.width + delta.width, height: stlist[index].Size.height + delta.height })
-                    }}
-                    onResizeStop={(e, dir, refToElement, delta, position) => {
-                        const tgtStatus = stlist[index]
-                        const nextStatus: Status = { Field: "header", Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } }
-                        setStlist([...stlist.splice(0, index + 1), nextStatus])
-                        setIndex(index + 1)
-                        console.log(stlist);
-                    }}
-                >
-                    <AppBar style={{ height: size.height, width: size.width }}>
-                        <Toolbar></Toolbar>
-                    </AppBar>
-                </Rnd>
+                {components.map((cmp: Component) => {
+                    if (cmp.Field === "button") {
+                        return <RndButton update={update} component={cmp} />
+                    } else if (cmp.Field === "appbar") {
+                        return <RndAppBar update={update} component={cmp} />
+                    } else {
+                        return <div />
+                    }
+                })}
 
             </div>
             <Button variant={"contained"} onClick={() => undo()}>戻る</Button>
