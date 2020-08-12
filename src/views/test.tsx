@@ -1,135 +1,64 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Typography, Button, AppBar, Toolbar, IconButton } from "@material-ui/core";
-import MenuIcon from '@material-ui/icons/Menu';
-import { Rnd } from 'react-rnd'
+import React, { useState, useEffect } from "react";
+import { Button, AppBarProps } from "@material-ui/core";
 import uid from 'uid';
+import { Component, ButtonArgs, AppBarArgs, defaultButtonArgs, defaultAppBarArgs } from "../types";
+import { RndAppBar, RndButton, ButtonField, AppBarField } from "./components";
 
-
-interface Status {
-    Field: string
-    Position: { "x": number, "y": number }
-    Size: { "width": number, "height": number }
-}
-
-interface Component {
-    ID: string
-    Field: string
-    Position: { "x": number, "y": number }
-    Size: { "width": number, "height": number }
-}
-
-interface AppBarProps {
-    update: (cmp: Component) => void
+interface ParameterFieldProps {
+    close: () => void
     component: Component
+    update: (cmp: Component) => void
 }
 
-const RndAppBar: React.FC<AppBarProps> = (props) => {
-    const { update, component } = props
-
-    const [size, setSize] = useState({ width: 500, height: 60 })
+const ParameterField: React.FC<ParameterFieldProps> = (props) => {
+    const { close, component, update } = props
+    console.log(component)
+    const field = () => {
+        if (component.Args.Field === "appbar") {
+            return (
+                <div >
+                    <AppBarField component={component} update={update} />
+                </div>
+            )
+        } else if (component.Args.Field === "button") {
+            return (
+                <div >
+                    <ButtonField component={component} update={update} />
+                </div>
+            )
+        } else {
+            return (
+                <div />
+            )
+        }
+    }
     return (
-        <Rnd
-            default={{
-                x: 0,
-                y: 0,
-                width: component.Size.width,
-                height: component.Size.height
-            }}
-            position={{ x: component.Position.x, y: component.Position.y }}
-            size={{ width: component.Size.width, height: component.Size.height }}
-            bounds={"parent"}
-            onDragStop={(e, data) => {
-                console.log(data)
-                //const nextStatus = { ...component, Field: "button", Position: { x: data.x, y: data.y } }
-                update({ ...component, Position: { x: data.x, y: data.y } })
-                //setIndex(index + 1)
-            }}
-            onResize={(e, dir, refToElement, delta, position) => {
-                setSize({ width: component.Size.width + delta.width, height: component.Size.height + delta.height })
-            }}
-            onResizeStop={(e, dir, refToElement, delta, position) => {
-                const tgtStatus = component
-                //const nextStatus: Component = { Field: "button", Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } }
-                update({ ...component, Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } })
-                //setIndex(index + 1)
-            }}
-        >
-            <AppBar style={{ height: size.height, width: size.width }}>
-                <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="menu" style={{ backgroundColor: "green" }}>
-                        <MenuIcon />
-                    </IconButton>
-
-                    <Typography variant="h6" style={{ backgroundColor: "red" }}>
-                        News
-                </Typography>
-                </Toolbar>
-            </AppBar>
-        </Rnd>
+        <div >
+            <Button onClick={() => close()}>閉じる</Button>
+            {field()}
+        </div>
     )
 }
 
-interface ButtonProps {
-    update: (cmp: Component) => void
-    component: Component
-}
-
-const RndButton: React.FC<ButtonProps> = (props) => {
-    const { update, component } = props
-
-    const [size, setSize] = useState({ width: 500, height: 60 })
-    // const [index, setIndex] = useState<number>(0)
-    //const [dolist, setDolist] = useState<Status[]>([{ Field: "button", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }])
-    return (
-        <Rnd
-            default={{
-                x: 0,
-                y: 0,
-                width: component.Size.width,
-                height: component.Size.height
-            }}
-            position={{ x: component.Position.x, y: component.Position.y }}
-            size={{ width: component.Size.width, height: component.Size.height }}
-            bounds={"parent"}
-            onDragStop={(e, data) => {
-                console.log(data)
-                //const nextStatus = { ...component, Field: "button", Position: { x: data.x, y: data.y } }
-                update({ ...component, Position: { x: data.x, y: data.y } })
-                //setIndex(index + 1)
-            }}
-            onResize={(e, dir, refToElement, delta, position) => {
-                setSize({ width: component.Size.width + delta.width, height: component.Size.height + delta.height })
-            }}
-            onResizeStop={(e, dir, refToElement, delta, position) => {
-                const tgtStatus = component
-                //const nextStatus: Component = { Field: "button", Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } }
-                update({ ...component, Position: { "x": position.x, "y": position.y }, Size: { "width": tgtStatus.Size.width + delta.width, "height": tgtStatus.Size.height + delta.height } })
-                //setIndex(index + 1)
-            }}
-        >
-            <Button variant={"contained"} style={{ height: size.height, width: size.width }}>{"test"}</Button>
-        </Rnd>
-    )
-}
 
 const Test: React.FC = () => {
-    //const [size, setSize] = useState({ width: 500, height: 60 })
     const [doIndex, setDoIndex] = useState<number>(-1)
     const [dolist, setDolist] = useState<Component[]>([])
     const [components, setComponents] = useState<Component[]>([])
+    const [viewParamField, setViewParamField] = useState<Component | undefined>(undefined)
 
     useEffect(() => {
         console.log("dolist2", dolist, doIndex, components)
     }, [dolist, doIndex])
 
-    const setButton = () => {
-        const component = { ID: uid(), Field: "button", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }
-        setComponents([...components, component])
-        setDoIndex(dolist.length)
-        setDolist([...dolist.slice(0, doIndex + 1), component])
+
+    const pressComponent = (cmp: Component) => {
+        console.log("press button")
+        setViewParamField(cmp)
     }
-    const setAppBar = () => {
-        const component = { ID: uid(), Field: "appbar", Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 } }
+
+    const addComponent = (args: AppBarArgs | ButtonArgs) => {
+        const component: Component = { ID: uid(), Field: args.Field, Position: { "x": 0, "y": 0 }, Size: { "height": 60, "width": 500 }, Args: args }
         setComponents([...components, component])
         setDoIndex(dolist.length)
         setDolist([...dolist.slice(0, doIndex + 1), component])
@@ -182,25 +111,32 @@ const Test: React.FC = () => {
         }
     }
     return (
-        <div>
-            <Button variant={"contained"} onClick={() => setButton()}>Button</Button>
-            <Button variant={"contained"} onClick={() => setAppBar()}>AppBar</Button>
-            <div style={{ height: 500, width: 800, backgroundColor: "blue", borderWidth: 1, borderColor: "black", borderStyle: "solid" }}>
-                {components.map((cmp: Component) => {
-                    if (cmp.Field === "button") {
-                        return <RndButton update={update} component={cmp} />
-                    } else if (cmp.Field === "appbar") {
-                        return <RndAppBar update={update} component={cmp} />
-                    } else {
-                        return <div />
-                    }
-                })}
+        <div style={{ display: "flex" }}>
+            <div>
+                <Button variant={"contained"} onClick={() => addComponent(defaultButtonArgs())}>Button</Button>
+                <Button variant={"contained"} onClick={() => addComponent(defaultAppBarArgs())}>AppBar</Button>
+                <div style={{ height: 500, width: 800, backgroundColor: "blue", borderWidth: 1, borderColor: "black", borderStyle: "solid" }}>
+                    {components.map((cmp: Component) => {
+                        if (cmp.Field === "button") {
+                            //return viewParamField?.ID === cmp.ID ? <Focus><RndButton onClick={pressComponent} update={update} component={cmp} /></Focus> : <RndButton onClick={pressComponent} update={update} component={cmp} />
+                            return <RndButton onClick={pressComponent} update={update} component={cmp} />
+                        } else if (cmp.Field === "appbar") {
+                            //return viewParamField?.ID === cmp.ID ? <Focus><RndAppBar onClick={pressComponent} update={update} component={cmp} /></Focus> : <RndAppBar onClick={pressComponent} update={update} component={cmp} />
+                            return <RndAppBar onClick={pressComponent} update={update} component={cmp} />
+                        } else {
+                            return <div />
+                        }
+                    })}
 
-            </div>
-            <Button variant={"contained"} onClick={() => undo()}>戻る</Button>
-            <Button variant={"contained"} onClick={() => redo()}>進む</Button>
-        </div >
+                </div>
+                <Button variant={"contained"} onClick={() => undo()}>戻る</Button>
+                <Button variant={"contained"} onClick={() => redo()}>進む</Button>
+            </div >
+            {viewParamField ?
+                <ParameterField close={() => { setViewParamField(undefined) }} component={viewParamField} update={update} /> : <div />}
+        </div>
     );
 };
+
 
 export default Test;
