@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, AppBarProps } from "@material-ui/core";
+import { Button, AppBarProps, Typography } from "@material-ui/core";
 import uid from 'uid';
 import { Component, ButtonArgs, AppBarArgs, defaultButtonArgs, defaultAppBarArgs } from "../types";
 import { RndAppBar, RndButton, ButtonField, AppBarField } from "./components";
@@ -40,8 +40,12 @@ const ParameterField: React.FC<ParameterFieldProps> = (props) => {
     )
 }
 
+const SCREEN_HEIGHT = window.innerHeight
+const SCREEN_WIDTH = window.innerWidth
 
-const Test: React.FC = () => {
+
+const MainView: React.FC = () => {
+    const [screenSize, setScreenSize] = useState({ "width": window.innerWidth, "height": window.innerHeight / 2 * 1080 / 1920 })
     const [doIndex, setDoIndex] = useState<number>(-1)
     const [dolist, setDolist] = useState<Component[]>([])
     const [components, setComponents] = useState<Component[]>([])
@@ -110,12 +114,20 @@ const Test: React.FC = () => {
             setDoIndex(doIndex + 1)
         }
     }
+
+    window.onresize = function () {
+        console.log("resize")
+        setScreenSize({ "width": window.innerWidth, "height": window.innerHeight / 2 * 1080 / 1920 })
+    }
+
     return (
-        <div style={{ display: "flex" }}>
-            <div>
+        <div style={{ display: "flex", padding: 100 }}>
+            <div >
+                <Typography>{`Size: width: ${screenSize.width / 2}, height: ${screenSize.width / 2 * 1080 / 1920}`}</Typography>
+                <Typography>{`既定: width: 1920, height: 1080`}</Typography>
                 <Button variant={"contained"} onClick={() => addComponent(defaultButtonArgs())}>Button</Button>
                 <Button variant={"contained"} onClick={() => addComponent(defaultAppBarArgs())}>AppBar</Button>
-                <div style={{ height: 500, width: 800, backgroundColor: "blue", borderWidth: 1, borderColor: "black", borderStyle: "solid" }}>
+                <div style={{ height: screenSize.width / 2 * 1080 / 1920, width: screenSize.width / 2, borderWidth: 2, borderColor: "black", borderStyle: "solid", }}>
                     {components.map((cmp: Component) => {
                         if (cmp.Field === "button") {
                             //return viewParamField?.ID === cmp.ID ? <Focus><RndButton onClick={pressComponent} update={update} component={cmp} /></Focus> : <RndButton onClick={pressComponent} update={update} component={cmp} />
@@ -139,4 +151,4 @@ const Test: React.FC = () => {
 };
 
 
-export default Test;
+export default MainView;

@@ -17,12 +17,16 @@ export const AppBarField: React.FC<AppBarFieldProps> = (props) => {
     return (
         <div>
             <Typography>{"AppBar Field"}</Typography>
+            <Typography>{`ID: ${component.ID}`}</Typography>
+            <Typography>{`Size: width: ${component.Size.width}, height: ${component.Size.height}`}</Typography>
+            <Typography>{`Position: x: ${component.Position.x}, y: ${component.Position.y}`}</Typography>
             <TextField variant={"outlined"} defaultValue={args.Title}
                 onChange={(e) => {
                     console.log(e.target.value)
                     update({ ...component, Args: { ...args, Title: e.target.value } })
                 }}
             />
+
 
         </div>
     )
