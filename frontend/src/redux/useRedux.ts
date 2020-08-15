@@ -26,5 +26,6 @@ export const useRedux = () => {
     dispatch(userActions.deleteApp(app))
 
   }, [])
+
   return { "updateUser": updateUser, "updateApp": updateApp, "deleteApp": deleteApp, "addApp": addApp }
 }
