@@ -1,13 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import MainView from "./views";
+import { Router } from "react-router-dom";
+import Routes from "./Route";
+import { createBrowserHistory } from "history";
+import { ThemeProvider } from "@material-ui/core/styles";
+import configureStore from './redux';
+import theme from "./styles/theme";
+import { Provider as ReduxProvider } from "react-redux";
+import { PersistGate } from 'redux-persist/integration/react'
 
+const browserHistory = createBrowserHistory();
 function App() {
+
+  const { store, persistor } = configureStore();
   return (
-    <div className="App">
-      <MainView />
-    </div>
+
+    <ReduxProvider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider theme={theme}>
+          <Router history={browserHistory}>
+            <Routes />
+          </Router>
+        </ThemeProvider>
+      </PersistGate>
+    </ReduxProvider>
   );
 }
 

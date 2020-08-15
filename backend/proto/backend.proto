@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package api;
+option go_package="api";
+
+message User{
+    string id = 1;
+    map<string, App> app_map = 2;
+}
+
+message App{
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    map<string, Page> page_map = 4;
+}
+
+message Page{
+    string id = 1;
+    int32 num = 2;
+    map<string, Component> component_map = 3;
+}
+
+message Component{
+    string id = 1;
+    Position position = 2;
+    Size size = 3;
+    string args = 4;
+}
+
+message Position{
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message Size{
+    int32 height = 1;
+    int32 width = 2;
+}
+
+message Data{
+    map<string, User> user_map = 1;
+}
